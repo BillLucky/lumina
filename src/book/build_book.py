@@ -40,6 +40,8 @@ BOOK_META = {
     ("michaelseibel", "zh"): ("迈克尔·塞贝尔创业文集", "Michael Seibel（迈克尔·塞贝尔）"),
     ("startupmarketing", "en"): ("Startup Marketing — The Sean Ellis Essays", "Sean Ellis"),
     ("startupmarketing", "zh"): ("增长营销文集", "Sean Ellis（肖恩·埃利斯）"),
+    ("a16z", "en"): ("The a16z Show — Transcribed Conversations", "Andreessen Horowitz"),
+    ("a16z", "zh"): ("a16z 播客对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
 }
 
 LANG_CODE = {"en": "en", "zh": "zh-CN"}
