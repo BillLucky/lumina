@@ -23,3 +23,6 @@ assets/mindmaps/*.png
 !logs/.gitkeep
 
 .DS_Store
+
+# scratch/preview
+scratch*/
