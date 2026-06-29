@@ -3,7 +3,7 @@
 流程（每期独立、可断点续传）：
   1. 下载 mp3（Simplecast 直链，断点续传）→ data/a16z/audio/<slug>.mp3
   2. ffmpeg 转 16kHz 单声道 wav
-  3. 复用 asr-env 的 mlx_qwen3_asr（Qwen3-ASR-1.7B，本地 MLX）转写英文
+  3. 用装有 mlx_qwen3_asr 的 Python 环境（Qwen3-ASR-1.7B，Apple MLX）转写英文
   4. 文字稿整理成段落，作为「文章」存入 MySQL（content=transcript）
   之后即可走通用的翻译 / 制书流程，把播客做成书。
 

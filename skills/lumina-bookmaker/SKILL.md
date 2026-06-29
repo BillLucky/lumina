@@ -1,13 +1,13 @@
 ---
 name: lumina-bookmaker
-description: 把名人博客/播客抓取→存MySQL→大模型翻译(信达雅)→提炼导读思维导图→制作成带封面的双语开源电子书(EPUB/PDF/MOBI/AZW3)。Use when Bill 说"把某个博客/网站/播客做成书"、"加一个数据源到 lumina"、"再抓一个作者的文章出双语书"、"lumina-bookmaker"，或要复用这套抓取/翻译/制书流水线时。
+description: 把博客/播客抓取→存MySQL→大模型翻译(信达雅)→提炼导读思维导图→制作成带封面的双语开源电子书(EPUB/PDF/MOBI/AZW3)。Use when 用户说"把某个博客/网站/播客做成书"、"加一个数据源"、"再抓一个作者的文章出双语书"、"lumina-bookmaker"，或要复用这套抓取/翻译/制书流水线时。
 ---
 
 # lumina 双语成书流水线
 
 把公开的博客文章 / 播客音频，做成「英文原版 + 中文信达雅译版」的开源电子书，每篇带**核心导读 + 思维导图**，含**封面**与**版权致谢页**，按时间正序编排、富目录。
 
-参考实现仓库：`~/Documents/Code/miaox/makeOnlineBlogToBook`（GitHub: BillLucky/lumina）。优先复用该仓库的代码，不要另起炉灶。
+参考实现：lumina 仓库本身即完整实现（开源）。在仓库根目录运行各脚本，优先复用现有代码，不要另起炉灶。所有路径用相对路径与 `.env` 配置，不要写死任何本机绝对路径。
 
 ## 架构（四阶段 + 增强）
 
@@ -50,11 +50,11 @@ description: 把名人博客/播客抓取→存MySQL→大模型翻译(信达雅
 - EPUB 用 `ebooklib`；PDF/MOBI/AZW3 用 calibre `ebook-convert`（缺失则仅出 EPUB）。
 - 排序永远按 `chrono_index` 升序（最早在前）；目录按年份分卷。
 - **封面**（`book/cover.py`）：PIL 排版式，深色主题色 + 象牙白衬线标题，原作者名醒目、译者/来源/仓库信息谦逊置页脚（variant=2 圆角框）。
-- **版权·致谢页**（`_colophon_html`）：含可点击的原文来源、译者(libiao.ai)、开源仓库链接 + 非商用声明。
+- **版权·致谢页**（`_colophon_html`）：含可点击的原文来源、译者署名（链接到译者主页）、开源仓库链接 + 非商用声明。
 
 ## 播客 ASR（本地）
 
-- 复用 asr-env 的 venv 跑 `mlx_qwen3_asr`（`Qwen3-ASR-1.7B`，Apple MLX，M4 Pro RTF~0.3，50min 音频约 13min 转完）。解释器路径由 `.env` 的 `ASR_PYTHON` 指定（勿写死进仓库）。
+- 用一个装有 `mlx-qwen3-asr` 的 Python 环境跑 `mlx_qwen3_asr`（`Qwen3-ASR-1.7B`，Apple MLX，Apple Silicon 上 RTF~0.3，50min 音频约 13min 转完）。该解释器路径由 `.env` 的 `ASR_PYTHON` 指定（勿写死进仓库）；非 Apple 平台可换 Whisper 等等效 ASR。
 - 流程：下载音频 → `ffmpeg -ac 1 -ar 16000` → ASR 转 JSON → 文字稿按句分段作为「文章」入库 → 走通用翻译/制书。
 - 说话人分离 `--diarize` 需 pyannote + HF token，默认不启用（输出单流可读文字稿）。
 

@@ -76,6 +76,33 @@ def _ctext(d, cx, y, text, font, fill):
     d.text((cx - w / 2, y), text, font=font, fill=fill)
 
 
+def _fit_one(d, text, avail, cjk, start=96, floor=44):
+    """把单行文字缩放到不超过 avail 宽，返回字号。"""
+    size = start
+    while size > floor:
+        f = _font("zh_hei" if cjk else "en_reg", size)
+        if d.textlength(text, font=f) <= avail:
+            break
+        size -= 4
+    return size
+
+
+def _fit_author(d, author, avail, cjk):
+    """作者名排版：能放下就一行；放不下且是「English（中文）」格式则拆两行。
+    返回 [(行文本, 字号)]。"""
+    if d.textlength(author, font=_font("zh_hei" if cjk else "en_reg", 96)) <= avail:
+        return [(author, 96)]
+    # 尝试在中文括号处拆分：英文名 / （中文名）
+    for sep in ("（", "("):
+        if sep in author:
+            i = author.index(sep)
+            en, zh = author[:i].strip(), author[i:].strip()
+            return [(en, _fit_one(d, en, avail, cjk, start=84)),
+                    (zh, _fit_one(d, zh, avail, cjk, start=72))]
+    # 否则整体缩放到放下
+    return [(author, _fit_one(d, author, avail, cjk))]
+
+
 def make_cover(source_key: str, lang: str, title: str, author: str,
                span: str, out_path: Path, repo: str = "", variant: int = 1) -> Path:
     bg, accent, ink = THEMES.get(source_key, DEFAULT_THEME)
@@ -110,9 +137,13 @@ def make_cover(source_key: str, lang: str, title: str, author: str,
     cy = y + 60
     d.polygon([(cx, cy-22), (cx+22, cy), (cx, cy+22), (cx-22, cy)], fill=accent)
 
-    # 作者（醒目）
-    af = _font("zh_hei" if cjk else "en_reg", 96)
-    _ctext(d, cx, cy + 80, author, af, ink)
+    # 作者（醒目，自适应：过宽则按「English（中文）」拆行，并缩放到版心内）
+    avail = W - 2 * MARGIN
+    a_lines = _fit_author(d, author, avail, cjk)
+    ay = cy + 80
+    for ln, sz in a_lines:
+        _ctext(d, cx, ay, ln, _font("zh_hei" if cjk else "en_reg", sz), ink)
+        ay += int(sz * 1.18)
 
     # —— 页脚信息区（来源 / 译者 / 仓库，谦逊小字）——
     site = SOURCE_SITE.get(source_key, "")

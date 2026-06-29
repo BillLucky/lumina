@@ -104,7 +104,7 @@ PYTHONPATH=src .venv/bin/python -m book.build_book --source naval --lang en --fo
   - `book/mindmap.py`：把要点渲染成横向树形思维导图 PNG（中心节点 + 曲线枝干 + 要点卡片，主题色）。
   - `book/build_book.py:_brief_block`：在每章正文前插入「核心导读」卡片（论点）+ 思维导图图片。无导读的文章正常降级渲染。
 - **PDF 版心**（`book/print.css` + `convert()`）：PDF 默认页边距是 **72pt**，且必须用 `--pdf-page-margin-*`（不是 `--margin-*`，后者对 PDF 无效）。配合 `--extra-css print.css` 清零 body 边距，正文占满 ~80% 宽。改版心改这两处。
-- **播客 ASR**（`scrape/scrape_a16z.py`）：下载 Simplecast 音频 → ffmpeg 转 16k 单声道 → **复用 asr-env 的 venv** 跑 `mlx_qwen3_asr`（`Qwen3-ASR-1.7B`，本地 MLX，M4 Pro RTF~0.3）转写英文 → 文字稿按句分段作为「文章」入库 → 走通用翻译/制书流程。说话人分离(`--diarize`)需 pyannote+HF token，未启用。ASR 解释器路径硬编码在文件顶部 `ASR_PYTHON`。
+- **播客 ASR**（`scrape/scrape_a16z.py`）：下载 Simplecast 音频 → ffmpeg 转 16k 单声道 → 用一个装有 `mlx-qwen3-asr` 的 Python 环境跑 `mlx_qwen3_asr`（`Qwen3-ASR-1.7B`，Apple MLX，RTF~0.3）转写英文 → 文字稿按句分段作为「文章」入库 → 走通用翻译/制书流程。说话人分离(`--diarize`)需 pyannote+HF token，未启用。ASR 解释器路径由 `.env` 的 `ASR_PYTHON` 指定（勿写死）。
 
 ## 数据库备份 / 换机迁移
 
