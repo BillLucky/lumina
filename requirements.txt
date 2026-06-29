@@ -1,0 +1,21 @@
+# HTTP & parsing
+requests>=2.31
+beautifulsoup4>=4.12
+lxml>=5.0
+
+# database
+PyMySQL>=1.1
+SQLAlchemy>=2.0
+
+# ebook generation
+EbookLib>=0.18
+
+# 封面与思维导图渲染
+Pillow>=10.0
+
+# config
+python-dotenv>=1.0
+
+# misc
+tenacity>=8.2
+tqdm>=4.66

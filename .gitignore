@@ -1,0 +1,25 @@
+# secrets
+.env
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# ── 私有内容：原文语料 / 译文 / 成书 / 数据库快照 不进公开仓库 ──
+# (原文版权归原作者；本项目仅公开"方法/代码"，不公开"数据/成书")
+data/
+output/
+db_backup/
+logs/
+
+# regenerable images (covers/mindmaps rebuilt from DB summaries)
+assets/covers/*.png
+assets/mindmaps/*.png
+
+# keep dir placeholders
+!data/.gitkeep
+!output/.gitkeep
+!logs/.gitkeep
+
+.DS_Store

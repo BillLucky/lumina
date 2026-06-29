@@ -1,0 +1,32 @@
+# 本地 MySQL 9，用于统一管理多个博客的原始数据、翻译结果与调用日志。
+# 启动：docker compose up -d
+# 连接：mysql -h127.0.0.1 -P3307 -ublog -pblogpass blogbook
+services:
+  mysql:
+    image: mysql:9
+    container_name: blogbook-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: blogbook
+      MYSQL_USER: blog
+      MYSQL_PASSWORD: blogpass
+    # 用 3307 避免与本机已有的 3306 冲突
+    ports:
+      - "3307:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max_allowed_packet=256M
+      - --innodb_buffer_pool_size=512M
+    volumes:
+      - blogbook_data:/var/lib/mysql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  blogbook_data:
