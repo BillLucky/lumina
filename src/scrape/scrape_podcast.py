@@ -50,7 +50,7 @@ UA = "Mozilla/5.0 (lumina podcast archiver; personal bilingual book project)"
 # cap：a16z Show 体量过大（~1000 集），先取近期 150；其余系列全量（None）。
 SERIES = {
     "a16z": dict(
-        name="The a16z Show", kind="podcast", cap=150,
+        name="The a16z Show", kind="podcast", cap=None,   # 磁盘已扩容，拉全量 ~1000 集
         feed="https://feeds.simplecast.com/JGE3yC0V",
         site="https://a16z.com/podcasts/a16z-show/"),
     "a16z_raising_health": dict(
