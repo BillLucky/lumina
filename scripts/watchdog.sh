@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# 看门狗：无人值守时保活两个 grind + 自愈 Docker/MySQL。
-# 本进程跑在 host（非 Docker），所以 Docker 崩了它仍存活并能把 Docker/MySQL 拉回来。
-# 每 ~3 分钟自检一次；grind 脚本均可断点续传，重新拉起安全。
+# 看门狗：无人值守时保活各 grind/管道 + 自愈 Docker/MySQL。
+# 本进程跑在 host（非 Docker），Docker 崩了它仍存活并能把 Docker/MySQL 拉回来。
+# 每 ~3 分钟自检；各驱动脚本均可断点续传，重新拉起安全。
 #
 # 用法：  bash scripts/watchdog.sh   （建议后台：日志 logs/watchdog.log）
 cd "$(dirname "$0")/.."
@@ -25,20 +25,25 @@ ensure_db(){
   fi
 }
 
+# 驱动名 → 完成标记（在各自日志里出现即视为完成，不再重拉）
+guard(){  # $1=脚本名  $2=日志  $3=完成标记
+  if ! running "$1" && ! grep -q "$3" "$2" 2>/dev/null; then
+    log "$1 不在跑且未完成 → 重新拉起"
+    nohup bash "scripts/$1" >> "$2" 2>&1 &
+  fi
+}
+done_marker(){ grep -q "$2" "$1" 2>/dev/null; }
+
 log "===== watchdog 启动 ====="
 while true; do
   ensure_db
-  if ! running "a16z_grind.sh" && ! grep -q "全部完成" logs/a16z_grind.log 2>/dev/null; then
-    log "a16z grind 不在跑且未完成 → 重新拉起"
-    nohup bash scripts/a16z_grind.sh >> logs/a16z_grind.log 2>&1 &
-  fi
-  if ! running "text_grind.sh" && ! grep -q "全部完成" logs/text_grind.log 2>/dev/null; then
-    log "text grind 不在跑且未完成 → 重新拉起"
-    nohup bash scripts/text_grind.sh >> logs/text_grind.log 2>&1 &
-  fi
-  # 两个都完成则退出看门狗
-  if grep -q "全部完成" logs/a16z_grind.log 2>/dev/null && grep -q "全部完成" logs/text_grind.log 2>/dev/null; then
-    log "两个 grind 均已完成 → watchdog 退出"
+  guard "a16z_grind.sh" "logs/a16z_grind.log" "全部完成"
+  guard "text_grind.sh" "logs/text_grind.log" "全部完成"
+  guard "pipe_avc.sh"   "logs/pipe_avc.log"   "avc 管道 完成"
+  if done_marker "logs/a16z_grind.log" "全部完成" \
+     && done_marker "logs/text_grind.log" "全部完成" \
+     && done_marker "logs/pipe_avc.log" "avc 管道 完成"; then
+    log "全部 grind/管道 完成 → watchdog 退出"
     break
   fi
   sleep 180
