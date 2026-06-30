@@ -36,6 +36,7 @@ THEMES = {
     "feld":              ("#0e2a2e", "#4ec6c0", "#e6f2f1"),
     "firstround":        ("#2a1018", "#d46a86", "#f4e6ea"),
     "eladgil":           ("#22301a", "#9ac46a", "#eef2e6"),
+    "gwern":             ("#15171a", "#8a98a8", "#e8ecef"),
 }
 DEFAULT_THEME = ("#222831", "#c9a86a", "#eef0f1")
 
@@ -62,6 +63,7 @@ SOURCE_SITE = {
     "feld": "feld.com",
     "firstround": "review.firstround.com",
     "eladgil": "blog.eladgil.com",
+    "gwern": "gwern.net",
 }
 
 FONTS = {

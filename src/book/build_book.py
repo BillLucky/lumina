@@ -79,6 +79,8 @@ BOOK_META = {
     ("firstround", "zh"): ("First Round Review 创业方法论", "First Round Review"),
     ("eladgil", "en"): ("Elad Gil — High Growth Essays", "Elad Gil"),
     ("eladgil", "zh"): ("埃拉德·吉尔文集", "Elad Gil（埃拉德·吉尔）"),
+    ("gwern", "en"): ("Gwern — Essays & Investigations", "Gwern Branwen"),
+    ("gwern", "zh"): ("Gwern 文集：研究与思辨", "Gwern Branwen"),
 }
 
 LANG_CODE = {"en": "en", "zh": "zh-CN"}
@@ -113,6 +115,7 @@ SOURCE_URL = {
     "feld": "https://feld.com",
     "firstround": "https://review.firstround.com",
     "eladgil": "https://blog.eladgil.com",
+    "gwern": "https://gwern.net",
 }
 
 CSS = """
