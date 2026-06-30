@@ -10,16 +10,22 @@
 
 ## What it produces
 
-For each source, two books (English original + Chinese translation), each in four formats:
+For each source, two books (English original + Chinese translation), each in four formats.
 
-| Source | Site | Pieces |
-|---|---|---|
-| Paul Graham | paulgraham.com | 231 |
-| Naval Ravikant | nav.al | 233 |
-| Marc Andreessen (pmarca) | pmarchive.com | 31 |
-| Michael Seibel | michaelseibel.com | 18 |
-| Sean Ellis | startup-marketing.com | 148 |
-| The a16z Show (podcast) | a16z.com | 5 |
+**Essays & blogs**
+
+| Thinker | Site | | Thinker | Site |
+|---|---|---|---|---|
+| Paul Graham | paulgraham.com | | Sam Altman | blog.samaltman.com |
+| Naval Ravikant | nav.al | | Dan Luu | danluu.com |
+| Marc Andreessen | pmarchive.com | | Elad Gil | blog.eladgil.com |
+| Michael Seibel | michaelseibel.com | | First Round Review | review.firstround.com |
+| Sean Ellis | startup-marketing.com | | Brad Feld | feld.com |
+| Fred Wilson | avc.com | | Chris Dixon | cdixon.org |
+| Bill Gurley | abovethecrowd.com | | Gwern Branwen | gwern.net |
+| Shane Parrish (Farnam Street) | fs.blog | | | |
+
+**Podcasts** — downloaded and transcribed locally with Qwen3‑ASR, one book per series. Andreessen Horowitz's shows: The a16z Show · AI + a16z · web3 with a16z · Raising Health · a16z Live · 16 Minutes · The Ben & Marc Show · Startup Hotline.
 
 Every chapter opens with a **核心导读 / In Brief** card (one‑sentence thesis + 3–6 key points) and a rendered **mind map**, followed by the full text — body set to fill the page, not cramped.
 

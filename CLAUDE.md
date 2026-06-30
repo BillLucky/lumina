@@ -4,18 +4,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目目标
 
-把知名人物的博客/播客完整抓取下来，存入本地 MySQL，再用大模型翻译 + 提炼导读，最终制作成双语（英文原版 + 中文译版）开源电子书（EPUB/PDF/MOBI/AZW3），含**封面**、每篇**核心导读 + 思维导图**，按时间正序编排、带富目录。当前来源：
+把知名人物的博客/播客完整抓取下来，存入本地 MySQL，再用大模型翻译 + 提炼导读，最终制作成双语（英文原版 + 中文译版）开源电子书（EPUB/PDF/MOBI/AZW3），含**封面**、每篇**核心导读 + 思维导图**，按时间正序编排、带富目录。
 
-| source_key | 人物/节目 | 站点 | kind（抓取方式） |
+**博客 / 文集类**（`scrape_<key>.py` → 翻译 → 制书）：
+
+| source_key | 人物 | 站点 | kind（抓取方式） |
 |---|---|---|---|
-| `paulgraham` | Paul Graham | paulgraham.com | `static_html`（解析 `<font>` 正文） |
-| `naval` | Naval Ravikant | nav.al | `wordpress_api`（WP REST API） |
-| `pmarca` | Marc Andreessen | pmarchive.com | `static_html`（HTML5 `<article>` + `<time>`） |
-| `michaelseibel` | Michael Seibel | michaelseibel.com | `strikingly`（渲染后 `.s-blog-content`） |
+| `paulgraham` | Paul Graham | paulgraham.com | `static_html`（`<font>` 正文） |
+| `naval` | Naval Ravikant | nav.al | `wordpress_api` |
+| `pmarca` | Marc Andreessen | pmarchive.com | `static_html`（`<article>`+`<time>`） |
+| `michaelseibel` | Michael Seibel | michaelseibel.com | `strikingly`（`.s-blog-content`） |
 | `startupmarketing` | Sean Ellis | startup-marketing.com | `wordpress_api`（复用 `wp_common`） |
-| `a16z` | The a16z Show（播客） | a16z.com | `podcast`（下载音频 → 本地 ASR 转写） |
+| `avc` | Fred Wilson | avc.com | `wordpress_api`（复用 `wp_common`） |
+| `abovethecrowd` | Bill Gurley | abovethecrowd.com | `wordpress_api`（复用 `wp_common`） |
+| `farnamstreet` | Shane Parrish | fs.blog | `wordpress_api`（复用 `wp_common`） |
+| `cdixon` | Chris Dixon | cdixon.org | `static_html`（`/archive` + `article.post`） |
+| `samaltman` | Sam Altman | blog.samaltman.com | `static_html`（Posthaven 分页 + atom 日期） |
+| `danluu` | Dan Luu | danluu.com | `static_html`（Hugo RSS 全文） |
+| `eladgil` | Elad Gil | blog.eladgil.com | `substack`（sitemap + post API） |
+| `firstround` | First Round Review | review.firstround.com | `static_html`（Ghost sitemap + SSR） |
+| `feld` | Brad Feld | feld.com | `static_html`（sitemap，~5500 篇） |
+| `gwern` | Gwern Branwen | gwern.net | `static_html`（sitemap 筛顶层随笔 + `#markdownBody`） |
 
-架构按「多来源」设计：**新增博客 = `sources` 表加一行 + 写一个 `scrape/scrape_<key>.py` + 在 `book/build_book.py:BOOK_META` 加中英书名**（WP 站直接复用 `scrape/wp_common.py:scrape_wp`）。翻译、导读、制书流程对所有来源通用。
+**播客类**（RSS 驱动，`scrape/scrape_podcast.py`：解析 feed 全集 → 下载 mp3 → 本地 ASR 转写 → 翻译 → 制书）。a16z 全系列，每系列一本独立书、统一 a16z 视觉：
+
+`a16z`（The a16z Show）· `a16z_ai`（AI + a16z）· `a16z_crypto`（web3 with a16z）· `a16z_raising_health` · `a16z_live` · `a16z_16min`（16 Minutes）· `a16z_benmarc`（Ben & Marc）· `a16z_hotline`（Startup Hotline）
+
+架构按「多来源」设计：**新增博客 = `sources` 表加一行（`ensure_source` 或 INSERT）+ 写一个 `scrape/scrape_<key>.py` + 在 `book/build_book.py:BOOK_META`/`SOURCE_URL` 与 `book/cover.py:THEMES`/`SOURCE_SITE` 各加一行**（WP 站直接复用 `scrape/wp_common.py:scrape_wp`；播客只需在 `scrape_podcast.py:SERIES` 加一行 feed）。翻译、导读、制书流程对所有来源通用。
+
+**并行长跑驱动**（均可断点续传、被 `scripts/watchdog.sh` 守护，Docker/MySQL 崩了自愈）：
+- `scripts/a16z_grind.sh`：逐系列 ASR→翻译→出书。**`--no-download` 省流量模式**：只处理已下载音频，不再拉新（未下载的留待将来增量；`scripts/download_remaining_audio.sh` 在有流量时一键补下）。
+- `scripts/text_grind.sh` / `text_grind2.sh` / `pipe_avc.sh` / `pipe_gwern.sh`：文本源并行抓取 + 流水线翻译出书（抓完即翻，不互等）。
+- `scripts/name_audio.py`：把 UUID 音频整理成「序号-中文（English）」可读软链接 + manifest.tsv（不动原文件）。
 
 完整流水线（`scripts/refresh.sh`）：抓取 → 翻译 → **生成导读** → 制书（封面+导图） → 导出 DB。
 

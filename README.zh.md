@@ -10,16 +10,22 @@
 
 ## 产出
 
-每个来源出两本书（英文原版 + 中文译版），每本四种格式：
+每个来源出两本书（英文原版 + 中文译版），每本四种格式。
 
-| 来源 | 站点 | 篇数 |
-|---|---|---|
-| Paul Graham | paulgraham.com | 231 |
-| Naval Ravikant | nav.al | 233 |
-| Marc Andreessen（pmarca） | pmarchive.com | 31 |
-| Michael Seibel | michaelseibel.com | 18 |
-| Sean Ellis | startup-marketing.com | 148 |
-| The a16z Show（播客） | a16z.com | 5 |
+**博客 / 文集**
+
+| 作者 | 站点 | | 作者 | 站点 |
+|---|---|---|---|---|
+| Paul Graham | paulgraham.com | | Sam Altman | blog.samaltman.com |
+| Naval Ravikant | nav.al | | Dan Luu | danluu.com |
+| Marc Andreessen | pmarchive.com | | Elad Gil | blog.eladgil.com |
+| Michael Seibel | michaelseibel.com | | First Round Review | review.firstround.com |
+| Sean Ellis | startup-marketing.com | | Brad Feld | feld.com |
+| Fred Wilson | avc.com | | Chris Dixon | cdixon.org |
+| Bill Gurley | abovethecrowd.com | | Gwern Branwen | gwern.net |
+| Shane Parrish（Farnam Street） | fs.blog | | | |
+
+**播客** — 下载音频后用本地 Qwen3‑ASR 转写，每个系列一本书。a16z 旗下节目：The a16z Show · AI + a16z · web3 with a16z · Raising Health · a16z Live · 16 Minutes · The Ben & Marc Show · Startup Hotline。
 
 每章开头是一张**核心导读 / In Brief** 卡片（一句话论点 + 3–6 个要点）和一张渲染出的**思维导图**，随后是充分占满版心、不再拥挤的正文。
 
