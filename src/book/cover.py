@@ -32,6 +32,10 @@ THEMES = {
     "farnamstreet":      ("#1a1f1c", "#7fb069", "#eef2ea"),
     "cdixon":            ("#241a3a", "#a98fd4", "#efeaf6"),
     "samaltman":         ("#0e1f1a", "#4ad0a0", "#e6f2ed"),
+    "danluu":            ("#1b1b1f", "#9aa3b0", "#ececf0"),
+    "feld":              ("#0e2a2e", "#4ec6c0", "#e6f2f1"),
+    "firstround":        ("#2a1018", "#d46a86", "#f4e6ea"),
+    "eladgil":           ("#22301a", "#9ac46a", "#eef2e6"),
 }
 DEFAULT_THEME = ("#222831", "#c9a86a", "#eef0f1")
 
@@ -54,6 +58,10 @@ SOURCE_SITE = {
     "farnamstreet": "fs.blog",
     "cdixon": "cdixon.org",
     "samaltman": "blog.samaltman.com",
+    "danluu": "danluu.com",
+    "feld": "feld.com",
+    "firstround": "review.firstround.com",
+    "eladgil": "blog.eladgil.com",
 }
 
 FONTS = {

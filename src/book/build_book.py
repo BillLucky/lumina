@@ -71,6 +71,14 @@ BOOK_META = {
     ("cdixon", "zh"): ("克里斯·迪克森文集", "Chris Dixon（克里斯·迪克森）"),
     ("samaltman", "en"): ("The Sam Altman Blog", "Sam Altman"),
     ("samaltman", "zh"): ("萨姆·奥尔特曼文集", "Sam Altman（萨姆·奥尔特曼）"),
+    ("danluu", "en"): ("Dan Luu — Essays on Software & Systems", "Dan Luu"),
+    ("danluu", "zh"): ("丹·卢：软件与系统随笔", "Dan Luu（丹·卢）"),
+    ("feld", "en"): ("Feld Thoughts — The Brad Feld Blog", "Brad Feld"),
+    ("feld", "zh"): ("布拉德·菲尔德博客文集", "Brad Feld（布拉德·菲尔德）"),
+    ("firstround", "en"): ("The First Round Review", "First Round Review"),
+    ("firstround", "zh"): ("First Round Review 创业方法论", "First Round Review"),
+    ("eladgil", "en"): ("Elad Gil — High Growth Essays", "Elad Gil"),
+    ("eladgil", "zh"): ("埃拉德·吉尔文集", "Elad Gil（埃拉德·吉尔）"),
 }
 
 LANG_CODE = {"en": "en", "zh": "zh-CN"}
@@ -101,6 +109,10 @@ SOURCE_URL = {
     "farnamstreet": "https://fs.blog",
     "cdixon": "https://cdixon.org/archive",
     "samaltman": "https://blog.samaltman.com",
+    "danluu": "https://danluu.com",
+    "feld": "https://feld.com",
+    "firstround": "https://review.firstround.com",
+    "eladgil": "https://blog.eladgil.com",
 }
 
 CSS = """
