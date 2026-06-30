@@ -14,14 +14,19 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import io
 import json
+import re
 import shutil
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
+import requests
 from ebooklib import epub
+from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from common import config, db   # noqa: E402
@@ -42,6 +47,20 @@ BOOK_META = {
     ("startupmarketing", "zh"): ("增长营销文集", "Sean Ellis（肖恩·埃利斯）"),
     ("a16z", "en"): ("The a16z Show — Transcribed Conversations", "Andreessen Horowitz"),
     ("a16z", "zh"): ("a16z 播客对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
+    ("a16z_ai", "en"): ("AI + a16z — Transcribed Conversations", "Andreessen Horowitz"),
+    ("a16z_ai", "zh"): ("AI + a16z 对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
+    ("a16z_crypto", "en"): ("web3 with a16z — Transcribed Conversations", "Andreessen Horowitz"),
+    ("a16z_crypto", "zh"): ("web3 与 a16z 对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
+    ("a16z_raising_health", "en"): ("Raising Health — Transcribed Conversations", "Andreessen Horowitz"),
+    ("a16z_raising_health", "zh"): ("Raising Health：医疗健康对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
+    ("a16z_live", "en"): ("a16z Live — Transcribed Conversations", "Andreessen Horowitz"),
+    ("a16z_live", "zh"): ("a16z Live 现场对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
+    ("a16z_16min", "en"): ("16 Minutes — Tech News by a16z", "Andreessen Horowitz"),
+    ("a16z_16min", "zh"): ("16 分钟：a16z 科技新闻速览", "Andreessen Horowitz（安德森·霍洛维茨）"),
+    ("a16z_benmarc", "en"): ("The Ben & Marc Show — Transcribed Conversations", "Ben Horowitz & Marc Andreessen"),
+    ("a16z_benmarc", "zh"): ("Ben & Marc 对话录", "Ben Horowitz & Marc Andreessen"),
+    ("a16z_hotline", "en"): ("a16z Startup Hotline — Transcribed Conversations", "Andreessen Horowitz"),
+    ("a16z_hotline", "zh"): ("a16z 创业热线对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
 }
 
 LANG_CODE = {"en": "en", "zh": "zh-CN"}
@@ -60,6 +79,13 @@ SOURCE_URL = {
     "michaelseibel": "https://www.michaelseibel.com/",
     "startupmarketing": "https://www.startup-marketing.com/",
     "a16z": "https://a16z.com/podcasts/a16z-show/",
+    "a16z_ai": "https://a16z.com/podcasts/ai-a16z/",
+    "a16z_crypto": "https://a16zcrypto.com/podcast/",
+    "a16z_raising_health": "https://a16z.com/podcasts/raising-health/",
+    "a16z_live": "https://a16z.com/podcasts/a16z-live/",
+    "a16z_16min": "https://a16z.com/podcasts/16-minutes/",
+    "a16z_benmarc": "https://a16z.com/podcasts/ben-marc/",
+    "a16z_hotline": "https://a16z.com/podcasts/startup-hotline/",
 }
 
 CSS = """
@@ -177,6 +203,68 @@ def _colophon_html(source_key, lang, author) -> str:
         "We will promptly comply with any author request to amend or remove this edition.</p>")
 
 
+IMG_CACHE = config.ROOT / "assets" / "img_cache"
+_IMG_RE = re.compile(r"<img\b[^>]*>", re.I)
+_SRC_RE = re.compile(r"""\bsrc\s*=\s*["']([^"']+)["']""", re.I)
+_IMG_MEDIA = {"jpg": "image/jpeg", "png": "image/png",
+              "gif": "image/gif", "webp": "image/webp"}
+
+
+def _fetch_image(url: str):
+    """下载并校验图片，返回 (bytes, ext) 或 None（死链/非图）。带本地缓存 + 死链标记，
+    避免每次重建都重下、也避免反复请求已失效的第三方图。"""
+    IMG_CACHE.mkdir(parents=True, exist_ok=True)
+    h = hashlib.sha256(url.encode("utf-8")).hexdigest()[:20]
+    if (IMG_CACHE / f"{h}.dead").exists():
+        return None
+    for f in IMG_CACHE.glob(f"{h}.*"):
+        if f.suffix != ".dead":
+            return f.read_bytes(), f.suffix.lstrip(".")
+    full = "https:" + url if url.startswith("//") else url
+    if not full.startswith("http"):
+        (IMG_CACHE / f"{h}.dead").touch()
+        return None
+    try:
+        r = requests.get(full, timeout=20,
+                         headers={"User-Agent": config.HTTP_USER_AGENT})
+        if r.status_code != 200 or not r.content:
+            raise ValueError(f"HTTP {r.status_code}")
+        im = Image.open(io.BytesIO(r.content))
+        im.verify()                                   # 真是图片才接受
+        ext = {"jpeg": "jpg"}.get((im.format or "png").lower(), (im.format or "png").lower())
+        if ext not in _IMG_MEDIA:
+            raise ValueError(f"unsupported {ext}")
+        (IMG_CACHE / f"{h}.{ext}").write_bytes(r.content)
+        return r.content, ext
+    except Exception:
+        (IMG_CACHE / f"{h}.dead").touch()
+        return None
+
+
+def _embed_images(html: str, book, idx: int) -> str:
+    """把正文里的远程 <img> 下载内嵌进 EPUB 并重写 src；死链/非图直接删标签（不留裂图）。"""
+    if "<img" not in (html or ""):
+        return html
+    n = [0]
+
+    def repl(m):
+        sm = _SRC_RE.search(m.group(0))
+        if not sm:
+            return ""
+        got = _fetch_image(sm.group(1).replace("&amp;", "&"))
+        if not got:
+            return ""
+        data, ext = got
+        n[0] += 1
+        name = f"images/img{idx:04d}_{n[0]}.{ext}"
+        book.add_item(epub.EpubImage(
+            uid=f"img{idx:04d}_{n[0]}", file_name=name,
+            media_type=_IMG_MEDIA[ext], content=data))
+        return f"<img src='{name}' alt=''/>"
+
+    return _IMG_RE.sub(repl, html)
+
+
 def _brief_block(source_key, lang, article, summary, mm_dir, book) -> str:
     """生成「核心导读」卡片 + 思维导图图片，并把图片加入 EPUB。无导读则返回空串。"""
     if not summary:
@@ -274,12 +362,13 @@ def build_epub(source_key: str, lang: str) -> Path | None:
         date_s = a["published_text"] or s["undated"]
         brief_html = _brief_block(source_key, lang, a, summaries.get(a["id"]),
                                   mm_dir, book)
+        body_html = _embed_images(a["content_html"], book, a["chrono_index"])
         c.content = (
             f"<h1>{a['title']}</h1>"
             f"<p class='meta'>{s['published']} {date_s} · "
             f"<a href='{a['url']}'>{s['source']}</a></p>"
             f"{brief_html}"
-            f"{a['content_html']}")
+            f"{body_html}")
         book.add_item(c)
         chapters.append(c)
         spine.append(c)

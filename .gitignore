@@ -13,9 +13,10 @@ output/
 db_backup/
 logs/
 
-# regenerable images (covers/mindmaps rebuilt from DB summaries)
+# regenerable images (covers/mindmaps rebuilt from DB summaries; img_cache = downloaded article images)
 assets/covers/*.png
 assets/mindmaps/*.png
+assets/img_cache/
 
 # keep dir placeholders
 !data/.gitkeep

@@ -20,6 +20,13 @@ THEMES = {
     "michaelseibel":   ("#0e3537", "#56c2b6", "#eaf4f1"),
     "startupmarketing":("#13321f", "#9bc53d", "#e9f2e6"),
     "a16z":            ("#3a0a1f", "#d4af6a", "#f2e6ea"),
+    "a16z_ai":            ("#0a1f2e", "#5fb0d4", "#e6f0f2"),
+    "a16z_crypto":       ("#1a0a2e", "#9a6ad4", "#ece6f2"),
+    "a16z_raising_health": ("#0a2e1a", "#5fd49a", "#e6f2ea"),
+    "a16z_live":         ("#2e1a0a", "#d49a5f", "#f2ece6"),
+    "a16z_16min":        ("#2e0a0a", "#d45f5f", "#f2e6e6"),
+    "a16z_benmarc":      ("#14142a", "#d4c95f", "#eceef2"),
+    "a16z_hotline":      ("#0a2e2e", "#5fd4d4", "#e6f2f2"),
 }
 DEFAULT_THEME = ("#222831", "#c9a86a", "#eef0f1")
 
@@ -30,6 +37,13 @@ SOURCE_SITE = {
     "michaelseibel": "michaelseibel.com",
     "startupmarketing": "startup-marketing.com",
     "a16z": "a16z.com",
+    "a16z_ai": "a16z.com",
+    "a16z_crypto": "a16zcrypto.com",
+    "a16z_raising_health": "a16z.com",
+    "a16z_live": "a16z.com",
+    "a16z_16min": "a16z.com",
+    "a16z_benmarc": "a16z.com",
+    "a16z_hotline": "a16z.com",
 }
 
 FONTS = {
