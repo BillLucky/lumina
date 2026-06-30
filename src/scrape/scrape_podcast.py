@@ -219,7 +219,7 @@ def ensure_source(key: str) -> int:
 # ── 主流程 ───────────────────────────────────────────────────────────
 def run_series(key: str, cap: int | None = None, workers: int = 4,
                limit: int | None = None, download_only: bool = False,
-               keep_wav: bool = False):
+               keep_wav: bool = False, no_download: bool = False):
     s = SERIES[key]
     cap = cap if cap is not None else s.get("cap")
     source_id = ensure_source(key)
@@ -229,34 +229,44 @@ def run_series(key: str, cap: int | None = None, workers: int = 4,
         eps = eps[:limit]
     print(f"  feed 共 {len(eps)} 集 待处理（cap={cap}）")
 
-    # 1) 并行下载（CDN 友好，限并发）
-    print(f"  并行下载音频（{workers} 并发）...")
-    done = 0
-    with ThreadPoolExecutor(max_workers=workers) as ex:
-        futs = {ex.submit(download, key, ep): ep for ep in eps}
-        for fut in as_completed(futs):
-            done += 1
-            if done % 20 == 0 or done == len(eps):
-                print(f"    下载 {done}/{len(eps)}")
-    if download_only:
-        print("  [download-only] 跳过 ASR")
-        return
+    audio_dir, _ = _dirs(key)
+
+    # 1) 并行下载（CDN 友好，限并发）。no_download：只处理已下载的，绝不再拉新音频（省流量）。
+    if no_download:
+        have = sum(1 for ep in eps if (audio_dir / f"{ep['eid']}.mp3").exists())
+        print(f"  [no-download] 仅处理已下载的 {have}/{len(eps)} 集，跳过未下载的")
+    else:
+        print(f"  并行下载音频（{workers} 并发）...")
+        done = 0
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futs = {ex.submit(download, key, ep): ep for ep in eps}
+            for fut in as_completed(futs):
+                done += 1
+                if done % 20 == 0 or done == len(eps):
+                    print(f"    下载 {done}/{len(eps)}")
+        if download_only:
+            print("  [download-only] 跳过 ASR")
+            return
 
     # 2) 串行 ASR + 入库（断点续传：已有 asr.json 直接复用）
-    audio_dir, _ = _dirs(key)
     for i, ep in enumerate(eps, 1):
         mp3 = audio_dir / f"{ep['eid']}.mp3"
         if not mp3.exists():
+            if no_download:
+                continue                      # 未下载的直接跳过（留待将来增量处理）
             mp3 = download(key, ep)
             if not mp3:
                 continue
         try:
             cached = (config.DATA_DIR / key / f"{ep['eid']}.asr.json").exists()
-            wav = to_wav(mp3)
             print(f"  [{i}/{len(eps)}] {'复用' if cached else 'ASR'} · {ep['title'][:60]}")
-            data = transcribe(key, ep, wav)
-            if not keep_wav and wav.exists():
-                wav.unlink()                       # 转完即删，省盘
+            if cached:
+                data = transcribe(key, ep, None)   # 断点续传：已转写直接读缓存，免 ffmpeg
+            else:
+                wav = to_wav(mp3)
+                data = transcribe(key, ep, wav)
+                if not keep_wav and wav.exists():
+                    wav.unlink()                   # 转完即删，省盘
             text = data.get("text") or ""
             content_html, content_text = transcript_to_html(text)
             meta = {"episode_id": ep["eid"], "audio_url": ep["audio_url"],
@@ -284,6 +294,8 @@ def main():
     ap.add_argument("--workers", type=int, default=4, help="下载并发数")
     ap.add_argument("--limit", type=int, default=None, help="调试：只处理前 N 集")
     ap.add_argument("--download-only", action="store_true", help="只并行下载音频，不 ASR")
+    ap.add_argument("--no-download", action="store_true",
+                    help="只处理已下载的音频，绝不拉新音频（省流量；未下载的留待将来增量）")
     ap.add_argument("--keep-wav", action="store_true", help="保留 16k wav（默认转完删）")
     args = ap.parse_args()
 
@@ -299,7 +311,8 @@ def main():
             print(f"未知系列: {key}（可选: {', '.join(SERIES)}）")
             continue
         run_series(key, cap=args.cap, workers=args.workers, limit=args.limit,
-                   download_only=args.download_only, keep_wav=args.keep_wav)
+                   download_only=args.download_only, keep_wav=args.keep_wav,
+                   no_download=args.no_download)
 
 
 if __name__ == "__main__":
