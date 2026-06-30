@@ -27,6 +27,11 @@ THEMES = {
     "a16z_16min":        ("#2e0a0a", "#d45f5f", "#f2e6e6"),
     "a16z_benmarc":      ("#14142a", "#d4c95f", "#eceef2"),
     "a16z_hotline":      ("#0a2e2e", "#5fd4d4", "#e6f2f2"),
+    "avc":               ("#10243a", "#4a9fd4", "#e8f0f6"),
+    "abovethecrowd":     ("#2a1c10", "#d4a24a", "#f4ece2"),
+    "farnamstreet":      ("#1a1f1c", "#7fb069", "#eef2ea"),
+    "cdixon":            ("#241a3a", "#a98fd4", "#efeaf6"),
+    "samaltman":         ("#0e1f1a", "#4ad0a0", "#e6f2ed"),
 }
 DEFAULT_THEME = ("#222831", "#c9a86a", "#eef0f1")
 
@@ -44,6 +49,11 @@ SOURCE_SITE = {
     "a16z_16min": "a16z.com",
     "a16z_benmarc": "a16z.com",
     "a16z_hotline": "a16z.com",
+    "avc": "avc.com",
+    "abovethecrowd": "abovethecrowd.com",
+    "farnamstreet": "fs.blog",
+    "cdixon": "cdixon.org",
+    "samaltman": "blog.samaltman.com",
 }
 
 FONTS = {

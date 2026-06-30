@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 from contextlib import contextmanager
 from typing import Any, Iterable, Optional
 
@@ -16,17 +17,29 @@ from pymysql.cursors import DictCursor
 from . import config
 
 
-def connect():
-    return pymysql.connect(
-        host=config.DB["host"],
-        port=config.DB["port"],
-        user=config.DB["user"],
-        password=config.DB["password"],
-        database=config.DB["database"],
-        charset="utf8mb4",
-        cursorclass=DictCursor,
-        autocommit=False,
-    )
+def connect(retries: int = 30, delay: float = 4.0):
+    """新建数据库连接。带重试：MySQL/Docker 瞬时不可达时退避重连（约 2 分钟容忍），
+    避免一次 DB 抖动就把多天的抓取/翻译长跑整个搞崩。正常情况下第一次即连上。"""
+    last = None
+    for attempt in range(retries):
+        try:
+            return pymysql.connect(
+                host=config.DB["host"],
+                port=config.DB["port"],
+                user=config.DB["user"],
+                password=config.DB["password"],
+                database=config.DB["database"],
+                charset="utf8mb4",
+                cursorclass=DictCursor,
+                autocommit=False,
+            )
+        except (pymysql.err.OperationalError, pymysql.err.InterfaceError) as e:
+            last = e
+            if attempt < retries - 1:
+                if attempt == 0:
+                    print(f"  [db] 连接失败，退避重试中… {e}")
+                time.sleep(delay)
+    raise last
 
 
 @contextmanager

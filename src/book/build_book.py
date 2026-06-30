@@ -61,6 +61,16 @@ BOOK_META = {
     ("a16z_benmarc", "zh"): ("Ben & Marc 对话录", "Ben Horowitz & Marc Andreessen"),
     ("a16z_hotline", "en"): ("a16z Startup Hotline — Transcribed Conversations", "Andreessen Horowitz"),
     ("a16z_hotline", "zh"): ("a16z 创业热线对话录", "Andreessen Horowitz（安德森·霍洛维茨）"),
+    ("avc", "en"): ("AVC — The Fred Wilson Blog Archives", "Fred Wilson"),
+    ("avc", "zh"): ("AVC：弗雷德·威尔逊博客文集", "Fred Wilson（弗雷德·威尔逊）"),
+    ("abovethecrowd", "en"): ("Above the Crowd — The Bill Gurley Essays", "Bill Gurley"),
+    ("abovethecrowd", "zh"): ("超越人群：比尔·格利文集", "Bill Gurley（比尔·格利）"),
+    ("farnamstreet", "en"): ("Farnam Street — Mental Models & Clear Thinking", "Shane Parrish"),
+    ("farnamstreet", "zh"): ("Farnam Street：思维模型与清晰思考", "Shane Parrish（谢恩·帕里什）"),
+    ("cdixon", "en"): ("cdixon — Essays on Startups, Crypto & Technology", "Chris Dixon"),
+    ("cdixon", "zh"): ("克里斯·迪克森文集", "Chris Dixon（克里斯·迪克森）"),
+    ("samaltman", "en"): ("The Sam Altman Blog", "Sam Altman"),
+    ("samaltman", "zh"): ("萨姆·奥尔特曼文集", "Sam Altman（萨姆·奥尔特曼）"),
 }
 
 LANG_CODE = {"en": "en", "zh": "zh-CN"}
@@ -86,6 +96,11 @@ SOURCE_URL = {
     "a16z_16min": "https://a16z.com/podcasts/16-minutes/",
     "a16z_benmarc": "https://a16z.com/podcasts/ben-marc/",
     "a16z_hotline": "https://a16z.com/podcasts/startup-hotline/",
+    "avc": "https://avc.com",
+    "abovethecrowd": "https://abovethecrowd.com",
+    "farnamstreet": "https://fs.blog",
+    "cdixon": "https://cdixon.org/archive",
+    "samaltman": "https://blog.samaltman.com",
 }
 
 CSS = """
