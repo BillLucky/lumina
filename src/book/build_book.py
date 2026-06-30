@@ -417,8 +417,10 @@ def build_epub(source_key: str, lang: str) -> Path | None:
     book.add_item(epub.EpubNav())
     book.spine = spine
 
-    config.OUTPUT_DIR.mkdir(exist_ok=True)
-    out = config.OUTPUT_DIR / f"{source_key}_{lang}.epub"
+    # 每个来源一个子目录：output/books/<source_key>/（PDF/MOBI/AZW3 由 convert() 写在同目录）
+    book_out = config.OUTPUT_DIR / "books" / source_key
+    book_out.mkdir(parents=True, exist_ok=True)
+    out = book_out / f"{source_key}_{lang}.epub"
     epub.write_epub(str(out), book)
     print(f"  ✓ EPUB {out.name}（{len(arts)} 篇）")
     _record_build(source_key, lang, "epub", out, len(arts))

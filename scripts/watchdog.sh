@@ -42,6 +42,8 @@ while true; do
   guard "text_grind2.sh" "logs/text_grind2.log" "全部完成"
   guard "pipe_avc.sh"    "logs/pipe_avc.log"    "avc 管道 完成"
   guard "pipe_gwern.sh"  "logs/pipe_gwern.log"  "gwern 管道 完成"
+  # 顺手整理 output/（归类新书到 books/<源>/）+ 刷新 INDEX.md 仪表盘
+  $PY scripts/build_index.py >/dev/null 2>&1 || true
   if done_marker "logs/a16z_grind.log" "全部完成" \
      && done_marker "logs/text_grind.log" "全部完成" \
      && done_marker "logs/text_grind2.log" "全部完成" \
