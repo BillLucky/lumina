@@ -103,6 +103,8 @@ def translate_article(article: dict, redo: bool = False) -> dict:
         "你是顶尖中英翻译家。把给定英文标题译成简洁优雅的简体中文，只输出译文本身。",
         title, article_id=aid, target_lang=TARGET_LANG, max_tokens=200)["text"].strip()
     title_zh = _strip_fences(title_zh).strip().strip('"').strip("「」")
+    # 列宽 VARCHAR(768)；模型偶尔把标题"译"成一整段，截断防 1406 Data too long
+    title_zh = title_zh[:700]
 
     blocks = split_blocks(content_html)
     chunks = make_chunks(blocks)

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# lumina —— 全局实时看板启动器。直接敲 ./lumina 即可，无需设 PYTHONPATH/激活 venv。
+#
+#   ./lumina            自刷新看板（默认 3s）
+#   ./lumina -n 5       5 秒刷新
+#   ./lumina --once     只打印一次（给 watch/管道/日志用）
+#
+# 想全局敲 `lumina`（任意目录）：把本仓库加进 PATH，或建软链，例如：
+#   ln -sf "$(pwd)/lumina" /usr/local/bin/lumina
+set -euo pipefail
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PY="$DIR/.venv/bin/python"
+[ -x "$PY" ] || PY="$(command -v python3)"     # 兜底：没建 venv 时用系统 python3
+exec "$PY" "$DIR/scripts/dashboard.py" "$@"

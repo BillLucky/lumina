@@ -35,7 +35,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **并行长跑驱动**（均可断点续传、被 `scripts/watchdog.sh` 守护，Docker/MySQL 崩了自愈）：
 - `scripts/a16z_grind.sh`：逐系列 ASR→翻译→出书。**`--no-download` 省流量模式**：只处理已下载音频，不再拉新（未下载的留待将来增量；`scripts/download_remaining_audio.sh` 在有流量时一键补下）。
 - `scripts/text_grind.sh` / `text_grind2.sh` / `pipe_avc.sh` / `pipe_gwern.sh`：文本源并行抓取 + 流水线翻译出书（抓完即翻，不互等）。
+- `scripts/pipe_cleanup.sh`：**收尾管道**——把首轮跑完后残留的 failed/漏译篇目按源重跑（翻译→导读→重制书，纯翻译不再抓取、不占流量）。`status='failed'` 会被 translate 当 pending 捡起，故可反复运行、断点续传。
 - `scripts/name_audio.py`：把 UUID 音频整理成「序号-中文（English）」可读软链接 + manifest.tsv（不动原文件）。
+
+**实时看板**：仓库根目录 `./lumina`（启动器，免设 PYTHONPATH/激活 venv）= 类 top/watch 的自刷新面板，一眼看全 ASR/翻译/出书进度、各 lane 存活、每源待重试失败数。`./lumina --once` 打印一次。底层 `scripts/dashboard.py` 数据取自 MySQL + 磁盘扫描；DB 只做 1 次快速探测（`db.cursor(retries=1)`），MySQL 抖动/重启时降级渲染而非阻塞。
 
 完整流水线（`scripts/refresh.sh`）：抓取 → 翻译 → **生成导读** → 制书（封面+导图） → 导出 DB。
 

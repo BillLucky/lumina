@@ -43,10 +43,11 @@ def call_messages(system: str, user: str, *, article_id: Optional[int] = None,
             latency = int((time.time() - t0) * 1000)
             if resp.status_code == 200:
                 data = resp.json()
+                # content/usage 可能显式为 null（键存在但值为 None，default 不生效）→ 兜底成空
                 text = "".join(
-                    b.get("text", "") for b in data.get("content", [])
+                    b.get("text", "") for b in (data.get("content") or [])
                     if b.get("type") == "text")
-                usage = data.get("usage", {})
+                usage = data.get("usage") or {}
                 in_tok = usage.get("input_tokens")
                 out_tok = usage.get("output_tokens")
                 _log_call(article_id, target_lang, body, resp.text, in_tok, out_tok,

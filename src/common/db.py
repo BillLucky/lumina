@@ -43,8 +43,9 @@ def connect(retries: int = 30, delay: float = 4.0):
 
 
 @contextmanager
-def cursor():
-    conn = connect()
+def cursor(retries: int = 30, delay: float = 4.0):
+    """默认带长重试（长跑鲁棒）；只读监控类可传 retries=1 快速失败，避免 DB 抖动时阻塞。"""
+    conn = connect(retries=retries, delay=delay)
     try:
         with conn.cursor() as cur:
             yield cur
