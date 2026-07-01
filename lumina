@@ -19,6 +19,11 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
+# 子命令：lumina server —— 看服务器(下载/ASR/翻译)状态与日志
+if [ "${1:-}" = "server" ]; then
+  exec bash "$DIR/scripts/server_status.sh" "${@:2}"
+fi
+
 PY="$DIR/.venv/bin/python"
 [ -x "$PY" ] || PY="$(command -v python3)"     # 兜底：没建 venv 时用系统 python3
 exec "$PY" "$DIR/scripts/dashboard.py" "$@"

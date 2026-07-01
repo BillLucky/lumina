@@ -251,14 +251,15 @@ def run_series(key: str, cap: int | None = None, workers: int = 4,
     # 2) 串行 ASR + 入库（断点续传：已有 asr.json 直接复用）
     for i, ep in enumerate(eps, 1):
         mp3 = audio_dir / f"{ep['eid']}.mp3"
-        if not mp3.exists():
+        # 有 asr.json（可能由服务器转写后回灌，本地未必有 mp3）即可入库；两者皆无才需下载/跳过
+        cached = (config.DATA_DIR / key / f"{ep['eid']}.asr.json").exists()
+        if not cached and not mp3.exists():
             if no_download:
-                continue                      # 未下载的直接跳过（留待将来增量处理）
+                continue                      # 无 asr.json 又无 mp3：跳过（留待增量处理）
             mp3 = download(key, ep)
             if not mp3:
                 continue
         try:
-            cached = (config.DATA_DIR / key / f"{ep['eid']}.asr.json").exists()
             print(f"  [{i}/{len(eps)}] {'复用' if cached else 'ASR'} · {ep['title'][:60]}")
             if cached:
                 data = transcribe(key, ep, None)   # 断点续传：已转写直接读缓存，免 ffmpeg
