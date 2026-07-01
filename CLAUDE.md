@@ -134,15 +134,17 @@ PYTHONPATH=src .venv/bin/python -m book.build_book --source naval --lang en --fo
 
 ## 数据库备份 / 换机迁移
 
-MySQL 是唯一事实源，整库（含原始网页、译文、审计）可导出为压缩 SQL 备份进版本库：
+MySQL 是唯一事实源，整库（含原始网页、译文、审计）可导出为压缩 SQL 备份：
 
 ```bash
 bash scripts/export_db.sh   # 导出到 db_backup/blogbook.sql.gz（mysqldump 全量）
 bash scripts/import_db.sh   # 换机/重置后恢复（先 docker compose up -d）
 ```
 
-`data/`、`output/`、`db_backup/*.sql.gz` 这类大文件/可再生产物默认被 `.gitignore` 忽略，
-**唯独 `db_backup/blogbook.sql.gz` 用 `git add -f` 强制纳入**，作为换机时一键重建数据的快照。
+> ⚠️ **本仓库开源，备份不进版本库。** `db_backup/` 整个目录被 `.gitignore` 忽略——
+> 备份里是我们抓取的**版权正文 + 译文全集**，属私有语料，**绝不 `git add -f` 推到公开仓库**
+> （与 README「语料/译文保持私有」一致）。换机迁移请走私有渠道拷 `blogbook.sql.gz`，不要入库。
+> 同理 `data/`、`output/`、`.env`（含 MiniMax token / `ASR_PYTHON` 本机路径）均只在本地。
 
 ## 翻译模型（MiniMax-M3）
 
