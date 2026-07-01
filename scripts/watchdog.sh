@@ -43,7 +43,8 @@ while true; do
   guard "text_grind2.sh" "logs/text_grind2.log" "全部完成"
   guard "pipe_avc.sh"    "logs/pipe_avc.log"    "avc 管道 完成"
   guard "pipe_gwern.sh"  "logs/pipe_gwern.log"  "gwern 管道 完成"
-  guard "pipe_cleanup.sh" "logs/pipe_cleanup.log" "cleanup 管道 完成"
+  # 文本翻译已迁到服务器(export_text_jobs→translate_jobs→import_text_jobs)，本地不再守护 cleanup。
+  # guard "pipe_cleanup.sh" "logs/pipe_cleanup.log" "cleanup 管道 完成"
   # 顺手整理 output/（归类新书到 books/<源>/）+ 刷新 INDEX.md 仪表盘
   $PY scripts/build_index.py >/dev/null 2>&1 || true
   # 退出条件不含 a16z_grind（ASR 已迁到服务器）：文本各 lane + cleanup 全完成即退。
@@ -51,7 +52,7 @@ while true; do
      && done_marker "logs/text_grind2.log" "全部完成" \
      && done_marker "logs/pipe_avc.log" "avc 管道 完成" \
      && done_marker "logs/pipe_gwern.log" "gwern 管道 完成" \
-     && done_marker "logs/pipe_cleanup.log" "cleanup 管道 完成"; then
+     ; then
     log "全部 grind/管道 完成 → watchdog 退出"
     break
   fi

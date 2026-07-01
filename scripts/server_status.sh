@@ -15,8 +15,8 @@ cd "$(dirname "$0")/.."
 getenv(){ grep -E "^$1=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"'"'"'"'; }
 SRV="${ASR_SERVER:-$(getenv ASR_SERVER)}"
 PORT="${ASR_SERVER_PORT:-$(getenv ASR_SERVER_PORT)}"; PORT="${PORT:-22}"
-DATA="${ASR_SERVER_DATA:-$(getenv ASR_SERVER_DATA)}"; DATA="${DATA:-REMOTE_DATA}"
-[ -n "$SRV" ] || { echo "请在 .env 设 ASR_SERVER=user@host"; exit 1; }
+DATA="${ASR_SERVER_DATA:-$(getenv ASR_SERVER_DATA)}"
+[ -n "$SRV" ] && [ -n "$DATA" ] || { echo "请在 .env 设 ASR_SERVER=user@host 和 ASR_SERVER_DATA=远端data目录"; exit 1; }
 ROOT="$(dirname "$DATA")"
 SSH=(ssh -p "$PORT" -o ConnectTimeout=20 -o ServerAliveInterval=10 "$SRV")
 
