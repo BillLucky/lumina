@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
-# lumina —— 全局实时看板启动器。直接敲 ./lumina 即可，无需设 PYTHONPATH/激活 venv。
+# lumina —— 全局实时看板启动器。直接敲 lumina 即可，无需 cd 进仓库、无需设环境变量。
 #
-#   ./lumina            自刷新看板（默认 3s）
-#   ./lumina -n 5       5 秒刷新
-#   ./lumina --once     只打印一次（给 watch/管道/日志用）
+#   lumina            自刷新看板（默认 3s）
+#   lumina -n 5       5 秒刷新
+#   lumina --once     只打印一次（给 watch/管道/日志用）
 #
-# 想全局敲 `lumina`（任意目录）：把本仓库加进 PATH，或建软链，例如：
-#   ln -sf "$(pwd)/lumina" /usr/local/bin/lumina
+# 全局安装（像 npm link，任意目录直接敲 lumina）：
+#   bash scripts/install_cli.sh      # 软链本脚本到 PATH 上的目录
+# 本脚本会解析软链回到真实仓库路径，故软链到任何 bin 目录都能正确找到 .venv 与 src。
 set -euo pipefail
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# 解析软链链，定位脚本真实所在的仓库根目录（BSD/macOS 无 readlink -f，手动展开）
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  D="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ "$SOURCE" != /* ]] && SOURCE="$D/$SOURCE"
+done
+DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+
 PY="$DIR/.venv/bin/python"
 [ -x "$PY" ] || PY="$(command -v python3)"     # 兜底：没建 venv 时用系统 python3
 exec "$PY" "$DIR/scripts/dashboard.py" "$@"
