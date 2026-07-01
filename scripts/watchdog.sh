@@ -37,7 +37,8 @@ done_marker(){ grep -q "$2" "$1" 2>/dev/null; }
 log "===== watchdog 启动 ====="
 while true; do
   ensure_db
-  guard "a16z_grind.sh"  "logs/a16z_grind.log"  "全部完成"
+  # a16z ASR 已迁移到 GPU 服务器（A100）处理，本地不再守护/拉起。恢复本地转写把下一行取消注释即可。
+  # guard "a16z_grind.sh"  "logs/a16z_grind.log"  "全部完成"
   guard "text_grind.sh"  "logs/text_grind.log"  "全部完成"
   guard "text_grind2.sh" "logs/text_grind2.log" "全部完成"
   guard "pipe_avc.sh"    "logs/pipe_avc.log"    "avc 管道 完成"
@@ -45,8 +46,8 @@ while true; do
   guard "pipe_cleanup.sh" "logs/pipe_cleanup.log" "cleanup 管道 完成"
   # 顺手整理 output/（归类新书到 books/<源>/）+ 刷新 INDEX.md 仪表盘
   $PY scripts/build_index.py >/dev/null 2>&1 || true
-  if done_marker "logs/a16z_grind.log" "全部完成" \
-     && done_marker "logs/text_grind.log" "全部完成" \
+  # 退出条件不含 a16z_grind（ASR 已迁到服务器）：文本各 lane + cleanup 全完成即退。
+  if done_marker "logs/text_grind.log" "全部完成" \
      && done_marker "logs/text_grind2.log" "全部完成" \
      && done_marker "logs/pipe_avc.log" "avc 管道 完成" \
      && done_marker "logs/pipe_gwern.log" "gwern 管道 完成" \
