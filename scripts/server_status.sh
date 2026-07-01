@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # lumina server —— 从本地一键看服务器上的下载/ASR/翻译进度与日志（免记 IP/端口）。
 # 服务器连接走本地 .env（gitignore，不入库）：
-#   ASR_SERVER=user@host   ASR_SERVER_PORT=REMOTE_PORT   ASR_SERVER_DATA=REMOTE_DATA
+#   ASR_SERVER=user@host   ASR_SERVER_PORT=<ssh端口>   ASR_SERVER_DATA=/远端/data
 #
 # 用法：
 #   lumina server            状态快照（会话/计数/GPU/近期完成）
