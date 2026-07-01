@@ -36,6 +36,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import torch                                    # noqa: E402
 from qwen_asr import Qwen3ASRModel              # noqa: E402
+import qwen_asr.inference.qwen3_asr as _qmod    # noqa: E402  (用于调小分块秒数)
 
 
 def to_wav16k(src: Path) -> Path:
@@ -70,11 +71,17 @@ def main():
                     help="Qwen3-ASR-1.7B 权重目录，或设 ASR_MODEL")
     ap.add_argument("--series", default=None, help="只处理某系列，默认全部")
     ap.add_argument("--language", default="English")
-    ap.add_argument("--batch", type=int, default=12, help="模型内部分块的批大小（吞吐↔显存）")
-    ap.add_argument("--max-new-tokens", type=int, default=12288,
-                    help="每块最大生成 token。默认 512 太小会截断长音频（20 分钟块约需 5000）")
+    ap.add_argument("--batch", type=int, default=16, help="模型内部分块的批大小（吞吐↔显存）")
+    ap.add_argument("--chunk-sec", type=int, default=300,
+                    help="长音频切块秒数（默认 300=5 分钟）。包默认 1200(20分钟)太大：单块生成慢、"
+                         "跑飞的块拖垮整批、GPU 批量喂不满。切小 → 更快 EOS + 批量填满 + 封顶跑飞")
+    ap.add_argument("--max-new-tokens", type=int, default=4096,
+                    help="每块最大生成 token。5 分钟块实际需 ~1300；4096 留足余量又能封顶跑飞的块")
     ap.add_argument("--limit", type=int, default=None, help="只处理前 N 条（冒烟测试用）")
     args = ap.parse_args()
+
+    # 调小分块秒数（transcribe 在模块全局里读这个常量）
+    _qmod.MAX_ASR_INPUT_SECONDS = args.chunk_sec
 
     data = Path(args.data)
     todo, total = collect(data, args.series)
